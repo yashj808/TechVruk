@@ -1,0 +1,155 @@
+/* ============================================================
+   TOOLBAR
+   ============================================================ */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--toolbar-height);
+  padding: 0 var(--space-3);
+  background: var(--color-mantle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+  z-index: 100;
+  gap: var(--space-2);
+}
+
+.toolbar__left,
+.toolbar__center,
+.toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.toolbar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-right: var(--space-2);
+}
+
+.toolbar__logo {
+  width: 24px;
+  height: 24px;
+}
+
+.toolbar__title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  background: linear-gradient(135deg, var(--color-mauve), var(--color-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.5px;
+}
+
+.toolbar__divider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border);
+  margin: 0 var(--space-2);
+}
+
+/* ---- Buttons ---- */
+
+.toolbar__btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-dim);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  position: relative;
+}
+
+.toolbar__btn:hover:not(:disabled) {
+  background: var(--color-surface-1);
+  color: var(--color-text);
+}
+
+.toolbar__btn:active:not(:disabled) {
+  background: var(--color-surface-2);
+  transform: scale(0.97);
+}
+
+.toolbar__btn--icon {
+  padding: var(--space-2);
+  width: 34px;
+  height: 34px;
+  justify-content: center;
+  border-radius: var(--radius-md);
+}
+
+.toolbar__btn--icon.active {
+  background: var(--color-accent-dim);
+  color: var(--color-accent);
+}
+
+.toolbar__btn--accent {
+  background: linear-gradient(135deg, var(--color-mauve), var(--color-blue));
+  color: var(--color-crust);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+}
+
+.toolbar__btn--accent:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-lavender), var(--color-sapphire));
+  color: var(--color-crust);
+  box-shadow: var(--shadow-glow);
+}
+
+/* ---- Zoom Label ---- */
+
+.toolbar__zoom-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  min-width: 40px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Export Dropdown ---- */
+
+.toolbar__export-group {
+  position: relative;
+}
+
+.toolbar__dropdown {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  min-width: 220px;
+  background: var(--color-surface-0);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-1);
+  z-index: 200;
+  animation: slideUp var(--transition-base) ease;
+}
+
+.toolbar__dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.toolbar__dropdown-item:hover {
+  background: var(--color-surface-1);
+  color: var(--color-text);
+}

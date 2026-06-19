@@ -1,0 +1,92 @@
+/* ============================================================
+   CANVAS AREA
+   ============================================================ */
+
+.app-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  height: calc(100vh - var(--toolbar-height) - var(--statusbar-height));
+}
+
+.canvas-area {
+  flex: 1;
+  position: relative;
+  background: var(--color-crust);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Subtle grid background */
+.canvas-area.show-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+[data-theme="light"] .canvas-area.show-grid {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.canvas-area canvas {
+  display: block;
+}
+
+/* Fabric.js customisations */
+.canvas-area .canvas-container {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+}
+
+/* ============================================================
+   STATUS BAR
+   ============================================================ */
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--statusbar-height);
+  padding: 0 var(--space-4);
+  background: var(--color-mantle);
+  border-top: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.status-bar__left,
+.status-bar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.status-bar__item {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.status-bar__item--fade {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.status-bar__item--fade.visible {
+  opacity: 1;
+}
+
+.status-bar__separator {
+  color: var(--color-border);
+  font-size: var(--font-size-xs);
+}

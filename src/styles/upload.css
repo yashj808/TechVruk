@@ -1,0 +1,110 @@
+/* ============================================================
+   UPLOAD OVERLAY & ZONE
+   ============================================================ */
+
+.upload-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17, 17, 27, 0.85);
+  backdrop-filter: blur(8px);
+  animation: fadeIn var(--transition-base) ease;
+}
+
+.upload-overlay.hidden {
+  display: none;
+}
+
+[data-theme="light"] .upload-overlay {
+  background: rgba(239, 241, 245, 0.9);
+}
+
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-10);
+  border: 2px dashed var(--color-overlay-0);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-0);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  min-width: 420px;
+  max-width: 520px;
+  text-align: center;
+  position: relative;
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-dim);
+  box-shadow: var(--shadow-glow), var(--shadow-xl);
+  transform: scale(1.02);
+}
+
+.upload-zone.dragover {
+  border-style: solid;
+}
+
+.upload-zone__icon {
+  color: var(--color-accent);
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.upload-zone__title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.upload-zone__subtitle {
+  font-size: var(--font-size-md);
+  color: var(--color-text-muted);
+}
+
+/* ---- Progress ---- */
+
+.upload-zone__progress {
+  width: 100%;
+  max-width: 300px;
+}
+
+.upload-zone__progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.upload-zone__progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--color-mauve), var(--color-blue));
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.upload-zone__progress-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+  margin-top: var(--space-2);
+  text-align: center;
+}
+
+/* ---- Drag over body state ---- */
+
+body.drag-over .upload-overlay {
+  display: flex !important;
+}
