@@ -103,7 +103,7 @@ class CanvasManager {
 
     // Listen for store events
     store.on('symbol:removed', ({ id }) => this._removeObject(id));
-    store.on('symbol:updated', ({ id, symbol }) => this._updateObject(id, symbol));
+    store.on('symbol:updated', (symbol) => this._updateObject(symbol.id, symbol));
   }
 
   _configureControls() {
