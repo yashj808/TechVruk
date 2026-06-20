@@ -26,6 +26,7 @@ class StateStore {
     /** Project metadata */
     this.projectName = 'Untitled Project';
     this.pdfName = null;
+    this.pdfFile = null;
 
     /** Undo / Redo */
     this._undoStack = [];
