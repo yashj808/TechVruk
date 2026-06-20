@@ -3,13 +3,18 @@
  * Extracts embedded XObject images and page text labels.
  */
 
-import * as pdfjsLib from 'pdfjs-dist';
-
-// Set worker source to the bundled worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.mjs',
-  import.meta.url
-).toString();
+// Lazy-load PDF.js and initialize worker only when needed
+let _pdfjsLib = null;
+async function getPdfJs() {
+  if (_pdfjsLib) return _pdfjsLib;
+  _pdfjsLib = await import('pdfjs-dist');
+  // set worker source to the bundled worker (module worker)
+  _pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.mjs',
+    import.meta.url
+  ).toString();
+  return _pdfjsLib;
+}
 
 /**
  * Extract images from a PDF file.
@@ -18,6 +23,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
  * @returns {Promise<{ images: Array, pageTexts: Array }>}
  */
 export async function extractImagesFromPDF(file, onProgress = () => {}) {
+  const pdfjsLib = await getPdfJs();
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
   const totalPages = pdf.numPages;

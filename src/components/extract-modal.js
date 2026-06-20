@@ -3,8 +3,19 @@
  * rendering PDF pages, crop overlay dragging, and creating cropped symbols.
  */
 
-import * as pdfjsLib from 'pdfjs-dist';
 import { FabricImage } from 'fabric';
+
+// Lazy-load pdfjs when opening the modal to avoid large initial bundle
+let _pdfjsModal = null;
+async function getPdfJsForModal() {
+  if (_pdfjsModal) return _pdfjsModal;
+  _pdfjsModal = await import('pdfjs-dist');
+  _pdfjsModal.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.mjs',
+    import.meta.url
+  ).toString();
+  return _pdfjsModal;
+}
 import { $, createElement, showToast } from '../utils/dom-helpers.js';
 import { store } from '../core/state-store.js';
 import { canvasManager } from '../core/canvas-manager.js';
@@ -40,6 +51,7 @@ export function initExtractModal() {
 
     try {
       showToast('Loading page preview...', 'info');
+      const pdfjsLib = await getPdfJsForModal();
       const arrayBuffer = await store.pdfFile.arrayBuffer();
       pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       
