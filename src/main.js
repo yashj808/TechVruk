@@ -10,6 +10,7 @@ import { initUploadZone } from './components/upload-zone.js';
 import { initSymbolLibrary } from './components/symbol-library.js';
 import { initPropertyPanel } from './components/property-panel.js';
 import { initStatusBar } from './components/status-bar.js';
+import { initExtractModal } from './components/extract-modal.js';
 
 // ── Boot ────────────────────────────────────────────────────
 
@@ -23,6 +24,7 @@ function init() {
   initSymbolLibrary();
   initPropertyPanel();
   initStatusBar();
+  initExtractModal();
 
   // 3. Try loading saved project
   const loaded = store.loadFromStorage();
