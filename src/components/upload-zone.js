@@ -100,6 +100,10 @@ export function initUploadZone() {
 
       // Create symbol objects
       store.pdfName = result.pdfName;
+      store.pdfFile = file;
+      const extractBtn = $('#btn-extract-region');
+      if (extractBtn) extractBtn.disabled = false;
+      
       const symbols = result.images.map((img, i) => {
         const labelData = labelMap.get(img.index) || {};
         const name = labelData.name || `Symbol-${i + 1}`;
