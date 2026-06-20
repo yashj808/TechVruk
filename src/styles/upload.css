@@ -108,3 +108,120 @@
 body.drag-over .upload-overlay {
   display: flex !important;
 }
+
+/* ============================================================
+   EXTRACT CUSTOM REGION MODAL
+   ============================================================ */
+
+.extract-modal-box {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface-0);
+  border: 1px solid var(--color-overlay-0);
+  border-radius: var(--radius-xl);
+  width: 90vw;
+  max-width: 960px;
+  height: 85vh;
+  box-shadow: var(--shadow-2xl);
+  overflow: hidden;
+  animation: zoomIn 0.3s ease;
+}
+
+.extract-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-surface-1);
+}
+
+.extract-modal-header h3 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.extract-modal-close-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-dim);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: color var(--transition-base);
+}
+
+.extract-modal-close-btn:hover {
+  color: var(--color-text);
+}
+
+.extract-modal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-surface-1);
+  border-bottom: 1px solid var(--color-surface-2);
+}
+
+.extract-modal-toolbar__group {
+  display: flex;
+  align-items: center;
+  color: var(--color-text);
+}
+
+.extract-modal-instructions {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.extract-modal-body {
+  flex: 1;
+  overflow: auto;
+  padding: var(--space-6);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: var(--color-base);
+}
+
+.extract-canvas-container {
+  position: relative;
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: white; /* Render PDF white */
+}
+
+#extract-pdf-canvas {
+  display: block;
+  max-width: 100%;
+  cursor: crosshair;
+}
+
+.extract-crop-overlay {
+  position: absolute;
+  border: 2px dashed var(--color-accent);
+  background: rgba(203, 166, 247, 0.2);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.extract-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  background: var(--color-surface-1);
+  border-top: 1px solid var(--color-surface-2);
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
