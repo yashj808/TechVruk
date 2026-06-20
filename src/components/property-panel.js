@@ -278,9 +278,12 @@ export function initPropertyPanel() {
     // Re-render if the updated symbol is currently selected
     const selected = store.getSelectedSymbols();
     if (selected.length === 1) {
-      // Don't steal focus if user is actively typing in the panel
+      // Don't steal focus if user is actively typing in an input or select
       if (contentEl.contains(document.activeElement)) {
-        return;
+        const tag = document.activeElement.tagName;
+        if (tag === 'INPUT' || tag === 'SELECT') {
+          return;
+        }
       }
       render();
     }
