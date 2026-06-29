@@ -44,7 +44,8 @@ export async function extractImagesFromPDF(file, onProgress = () => {}) {
     for (let i = 0; i < ops.fnArray.length; i++) {
       if (
         ops.fnArray[i] === pdfjsLib.OPS.paintImageXObject ||
-        ops.fnArray[i] === pdfjsLib.OPS.paintJpegXObject
+        ops.fnArray[i] === pdfjsLib.OPS.paintJpegXObject ||
+        ops.fnArray[i] === pdfjsLib.OPS.paintImageMaskXObject
       ) {
         const imgName = ops.argsArray[i][0];
         imageRefs.add(imgName);
