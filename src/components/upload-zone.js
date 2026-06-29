@@ -42,10 +42,8 @@ export function initUploadZone() {
     e.preventDefault();
     zone.classList.remove('dragover');
     const file = e.dataTransfer.files[0];
-    if (file && file.type === 'application/pdf') {
+    if (file) {
       handleFile(file);
-    } else {
-      showToast('Please drop a PDF file', 'error');
     }
   });
 
@@ -62,8 +60,29 @@ export function initUploadZone() {
 
   // ── Handle File Processing ────────────────────────────────
   async function handleFile(file) {
-    if (file.type !== 'application/pdf') {
-      showToast('Please upload a PDF file', 'error');
+    const isJson = file.name.endsWith('.json') || file.name.endsWith('.symbex.json');
+    if (!isJson && file.type !== 'application/pdf') {
+      showToast('Please upload a PDF or Symbex JSON file', 'error');
+      return;
+    }
+
+    if (isJson) {
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        const success = store.deserialize(data);
+        if (success) {
+          canvasManager.clear();
+          await canvasManager.addSymbols(store.getAllSymbols());
+          overlay.classList.add('hidden');
+          showToast(`Loaded project: ${data.projectName || 'Untitled'}`, 'success');
+        } else {
+          showToast('Invalid project file format', 'error');
+        }
+      } catch (err) {
+        console.error('Project load failed:', err);
+        showToast('Failed to parse project file', 'error');
+      }
       return;
     }
 
