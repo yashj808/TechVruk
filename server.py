@@ -6,6 +6,7 @@ Accepts PDF uploads, extracts all shapes using PyMuPDF, returns JSON.
 import fitz  # PyMuPDF
 import json
 import base64
+import io
 import os
 import re
 import uuid
@@ -16,6 +17,44 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+
+def make_white_transparent(pix):
+    """
+    Convert a PyMuPDF Pixmap with alpha channel:
+    sets all near-white pixels (R>240, G>240, B>240) to fully transparent.
+    Returns PNG bytes.
+    """
+    # Work on raw RGBA samples
+    samples = bytearray(pix.samples)
+    n = pix.n  # samples per pixel (should be 4 for RGBA)
+    if n == 4:
+        for k in range(0, len(samples), 4):
+            r, g, b = samples[k], samples[k+1], samples[k+2]
+            if r > 240 and g > 240 and b > 240:
+                samples[k+3] = 0  # transparent
+    # Encode to PNG via raw RGBA → fitz Pixmap
+    # Use Pillow-free approach: write raw RGBA data as PNG
+    import struct, zlib
+    w, h = pix.width, pix.height
+
+    def make_png(width, height, rgba_data):
+        """Encode raw RGBA bytes to a PNG file."""
+        def chunk(chunk_type, data):
+            c = chunk_type + data
+            crc = struct.pack('>I', zlib.crc32(c) & 0xffffffff)
+            return struct.pack('>I', len(data)) + c + crc
+
+        header = b'\x89PNG\r\n\x1a\n'
+        ihdr = struct.pack('>IIBBBBB', width, height, 8, 6, 0, 0, 0)  # 8-bit RGBA
+        # Build scanlines (each row prefixed with filter byte 0 = None)
+        raw = b''
+        stride = width * 4
+        for y in range(height):
+            raw += b'\x00' + bytes(rgba_data[y * stride:(y + 1) * stride])
+        compressed = zlib.compress(raw)
+        return header + chunk(b'IHDR', ihdr) + chunk(b'IDAT', compressed) + chunk(b'IEND', b'')
+
+    return make_png(w, h, samples)
 
 def group_drawing_rects(rects, threshold=15):
     """Group drawing bounding boxes by proximity."""
@@ -95,7 +134,7 @@ def extract_symbols_from_bytes(pdf_bytes, pdf_name="upload.pdf"):
                     bbox.x1 + padding, bbox.y1 + padding
                 ) & page.rect
                 pix = page.get_pixmap(matrix=matrix, clip=clip, alpha=True)
-                png_bytes = pix.tobytes("png")
+                png_bytes = make_white_transparent(pix)
 
                 base64_data = base64.b64encode(png_bytes).decode('utf-8')
                 data_url = f"data:image/png;base64,{base64_data}"
@@ -169,7 +208,7 @@ def extract_symbols_from_bytes(pdf_bytes, pdf_name="upload.pdf"):
 
             matrix = fitz.Matrix(3.0, 3.0)
             pix = page.get_pixmap(matrix=matrix, clip=clip, alpha=True)
-            png_bytes = pix.tobytes("png")
+            png_bytes = make_white_transparent(pix)
 
             base64_data = base64.b64encode(png_bytes).decode('utf-8')
             data_url = f"data:image/png;base64,{base64_data}"
