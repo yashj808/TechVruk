@@ -1,4 +1,35 @@
-﻿node_modules
-.DS_Store
-dist
+# Dependencies
+node_modules/
 
+# Build output
+dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# PDF test files
+*.pdf
+
+# PyMuPDF extraction output
+extracted_shapes/
+*.symbex.json
+
+# Scratch / diagnostic scripts
+scratch/
+
+# Dev notes (not project docs)
+chore-notes.md
+refactor-plan.md
+test-setup.md
+ci-note.yml
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+.env.local
+__pycache__/
+*.pyc
