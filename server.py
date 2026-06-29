@@ -15,7 +15,11 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+# Restrict CORS to local dev servers only
+CORS(app, origins=["http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001"])
+
+# Max upload size: 50 MB
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 
 def make_white_transparent(pix):
@@ -303,8 +307,20 @@ def extract():
         return jsonify({"error": "No file uploaded"}), 400
 
     file = request.files["file"]
-    pdf_bytes = file.read()
     pdf_name = file.filename or "upload.pdf"
+
+    # Validate file extension
+    if not pdf_name.lower().endswith('.pdf'):
+        return jsonify({"error": "Only PDF files are accepted"}), 400
+
+    # Sanitize filename (strip path components)
+    pdf_name = os.path.basename(pdf_name)
+
+    pdf_bytes = file.read()
+
+    # Validate PDF magic bytes
+    if not pdf_bytes[:5] == b'%PDF-':
+        return jsonify({"error": "Invalid PDF file"}), 400
 
     print(f"Received PDF: {pdf_name} ({len(pdf_bytes)} bytes)")
 
@@ -319,7 +335,7 @@ def extract():
         })
     except Exception as e:
         print(f"Extraction error: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "PDF extraction failed"}), 500
 
 
 @app.route("/health", methods=["GET"])
@@ -332,4 +348,4 @@ if __name__ == "__main__":
     print("Symbex Extraction Server (PyMuPDF)")
     print("Listening on http://localhost:5050")
     print("=" * 50)
-    app.run(host="0.0.0.0", port=5050, debug=False)
+    app.run(host="127.0.0.1", port=5050, debug=False)
