@@ -1,7 +1,10 @@
 /**
- * PDF image extraction using PDF.js.
- * Extracts embedded XObject images and page text labels.
+ * PDF image extraction — PyMuPDF server-first, PDF.js fallback.
+ * Tries the local PyMuPDF extraction server at localhost:5050 first.
+ * Falls back to client-side PDF.js extraction if the server is unavailable.
  */
+
+const PYMUPDF_SERVER = 'http://localhost:5050';
 
 // Lazy-load PDF.js and initialize worker only when needed
 let _pdfjsLib = null;
@@ -17,12 +20,101 @@ async function getPdfJs() {
 }
 
 /**
+ * Try extracting via the local PyMuPDF server.
+ * Returns extracted symbols array or null if the server is unavailable.
+ */
+async function tryPyMuPDFServer(file, onProgress) {
+  try {
+    // Quick health check first
+    const health = await fetch(`${PYMUPDF_SERVER}/health`, {
+      signal: AbortSignal.timeout(1000)
+    });
+    if (!health.ok) return null;
+
+    onProgress(10);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${PYMUPDF_SERVER}/extract`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    if (!data.success || !data.symbols || data.symbols.length === 0) return null;
+
+    onProgress(80);
+
+    // Convert server response to the format expected by the app
+    const images = data.symbols.map((sym, i) => ({
+      dataUrl: sym.imageDataUrl,
+      width: sym.canvas.width,
+      height: sym.canvas.height,
+      pageNumber: sym.source.pageNumber,
+      xObjectRef: sym.source.xObjectRef,
+      index: i,
+      x: sym.canvas.x,
+      y: sym.canvas.y,
+      serverExtracted: true,
+    }));
+
+    // Extract page text from the PDF client-side for label matching
+    const pdfjsLib = await getPdfJs();
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pageTexts = [];
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      try {
+        const textContent = await page.getTextContent();
+        const vp1 = page.getViewport({ scale: 1 });
+        const textItems = textContent.items.map(item => ({
+          text: item.str,
+          x: item.transform[4],
+          y: vp1.height - item.transform[5],
+          width: item.width,
+          height: item.height,
+          pageNumber: pageNum,
+        }));
+        pageTexts.push(...textItems);
+      } catch (err) {
+        console.warn('Text extraction failed for page', pageNum, err);
+      }
+    }
+
+    onProgress(100);
+    console.log(`PyMuPDF server extracted ${images.length} symbols`);
+
+    return {
+      images,
+      pageTexts,
+      totalPages: pdf.numPages,
+      pdfName: file.name,
+    };
+  } catch (err) {
+    console.log('PyMuPDF server not available, using client-side extraction:', err.message);
+    return null;
+  }
+}
+
+/**
  * Extract images from a PDF file.
+ * Tries PyMuPDF server first, falls back to client-side PDF.js.
  * @param {File} file - The PDF file
  * @param {function} onProgress - Progress callback (0-100)
  * @returns {Promise<{ images: Array, pageTexts: Array }>}
  */
 export async function extractImagesFromPDF(file, onProgress = () => {}) {
+  // ── Try PyMuPDF server first ───────────────────────────────
+  const serverResult = await tryPyMuPDFServer(file, onProgress);
+  if (serverResult) return serverResult;
+
+  // ── Fallback: client-side PDF.js extraction ────────────────
+  console.log('Using client-side PDF.js extraction...');
   const pdfjsLib = await getPdfJs();
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
