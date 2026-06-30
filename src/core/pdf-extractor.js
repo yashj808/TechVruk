@@ -253,11 +253,12 @@ function extractShapesFromPageCanvas(canvas, pageNum, scale = 2.0) {
   const imageData = ctx.getImageData(0, 0, width, height);
   const px = imageData.data;
 
-  // 1. Scan for active non-white pixels
+  // 1. Scan for active non-white pixels (exclude margins near edges to ignore page borders)
   const points = [];
   const step = 2; // Performance optimization: scan every 2nd pixel
-  for (let y = 0; y < height; y += step) {
-    for (let x = 0; x < width; x += step) {
+  const margin = 50; // Skip 50px border around the page edges
+  for (let y = margin; y < height - margin; y += step) {
+    for (let x = margin; x < width - margin; x += step) {
       const idx = (y * width + x) * 4;
       const r = px[idx];
       const g = px[idx+1];
@@ -273,7 +274,7 @@ function extractShapesFromPageCanvas(canvas, pageNum, scale = 2.0) {
 
   // 2. Group points into boxes based on proximity
   const boxes = [];
-  const maxDistance = 30; // Max grouping distance (pixels)
+  const maxDistance = 24; // Max grouping distance (pixels) - equivalent to 12pt in PyMuPDF
 
   for (const pt of points) {
     let foundBox = null;
